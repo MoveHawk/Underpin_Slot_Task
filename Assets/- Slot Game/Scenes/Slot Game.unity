@@ -1061,7 +1061,7 @@ GameObject:
   - component: {fileID: 503760693}
   - component: {fileID: 503760692}
   m_Layer: 5
-  m_Name: Money_text
+  m_Name: Credits_text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1107,7 +1107,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Money:'
+  m_text: 'Credits:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2575,9 +2575,13 @@ MonoBehaviour:
   stopGap: 0.25
   startingBalance: 1000
   betAmount: 10
+  maxBet: 100
   outcomeWeights: aa00000041000000230000000f0000000500000001000000320000003200000061020000
   payoutMultipliers: 020000000300000004000000050000000a00000000000000020000000100000000000000
   spinButton: {fileID: 1954538740}
+  increaseBetButton: {fileID: 1693063706}
+  decreaseBetButton: {fileID: 957236677}
+  betText: {fileID: 285149808}
   balanceText: {fileID: 1866596945}
   resultText: {fileID: 404562654}
   rtpText: {fileID: 924705538}
@@ -2593,7 +2597,7 @@ GameObject:
   - component: {fileID: 1866596946}
   - component: {fileID: 1866596945}
   m_Layer: 5
-  m_Name: Money_value
+  m_Name: Credits_value
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

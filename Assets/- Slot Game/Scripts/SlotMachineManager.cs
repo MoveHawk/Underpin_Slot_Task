@@ -14,9 +14,10 @@ public class SlotMachineManager : MonoBehaviour
     [SerializeField, Min(0.1f)] private float spinDuration = 1.5f;
     [SerializeField, Min(0f)] private float stopGap = 0.25f;
 
-    [Header("Credits")]
+    [Header("Bet Controls & Credits")]
     [SerializeField] private int startingBalance = 1000;
-    [SerializeField, Min(1)] private int betAmount = 10;
+    [SerializeField] private int betAmount = 10;
+    [SerializeField] private int maxBet = 100;
 
     [Header("Outcome Weights")]
     /* These weights decide the complete result of a spin.
@@ -33,6 +34,9 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
 
     [Header("UI")]
     [SerializeField] private Button spinButton;
+    [SerializeField] private Button increaseBetButton;
+    [SerializeField] private Button decreaseBetButton;
+    [SerializeField] private TMP_Text betText;
     [SerializeField] private TMP_Text balanceText;
     [SerializeField] private TMP_Text resultText;
     [SerializeField] private TMP_Text rtpText;
@@ -55,10 +59,10 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
 
     private void Awake()
     {
-        ReelCheck();
+        SlotCheck();
     }
 
-    private bool ReelCheck()
+    private bool SlotCheck()
     {
         balance = startingBalance;
 
@@ -82,8 +86,7 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
         if (outcomeWeights == null || outcomeWeights.Length != 9 ||
             payoutMultipliers == null || payoutMultipliers.Length != 9)
         {
-            Debug.LogError(
-                "Assign exactly 9 outcome weights and 9 payout multipliers.",this);
+            Debug.LogError("Assign exactly 9 outcome weights and 9 payout multipliers.",this);
             enabled = false;
             return false;
         }
@@ -121,6 +124,14 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
 
         if (spinButton != null)
             spinButton.onClick.AddListener(Spin);
+
+        if (increaseBetButton != null)
+            increaseBetButton.onClick.AddListener(IncreaseBet);
+
+        if (decreaseBetButton != null)
+            decreaseBetButton.onClick.AddListener(DecreaseBet);
+
+        UpdateBetUI();
 
         UpdateUI();
 
@@ -410,6 +421,38 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
 
         // Observed RTP = total credits paid / total credits wagered.
         return (double)totalPaid / totalWagered * 100.0;
+    }
+
+    public void IncreaseBet()
+    {
+        if (isSpinning || betAmount >= maxBet)
+            return;
+
+        betAmount = Mathf.Min(betAmount + 10, maxBet);
+        UpdateBetUI();
+    }
+
+    public void DecreaseBet()
+    {
+        if (isSpinning || betAmount <= 1)
+            return;
+
+        betAmount = Mathf.Max(betAmount - 10, 10);
+        UpdateBetUI();
+    }
+
+    private void UpdateBetUI()
+    {
+        if (increaseBetButton != null)
+            increaseBetButton.interactable =
+                !isSpinning && betAmount < maxBet;
+
+        if (decreaseBetButton != null)
+            decreaseBetButton.interactable =
+                !isSpinning && betAmount > 1;
+
+        if (betText != null)
+            betText.text = $"$ {betAmount}";
     }
 
     private void UpdateUI()
