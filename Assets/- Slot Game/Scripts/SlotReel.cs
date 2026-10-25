@@ -7,8 +7,8 @@ public class SlotReel : MonoBehaviour
 {
     [Header("Symbols")]
     //the no. of images to be shown on the reel strip are 3, the extra images are hidden by the RectMask2D, they are used for seamless animation.
-    [SerializeField] private Image[] symbolImages = new Image[7];
-    [SerializeField] private Sprite[] symbols = new Sprite[5]; //reference to the original symbol sprites from the asset library.
+    [SerializeField] private Image[] symbolImages = new Image[9];
+    [SerializeField] private Sprite[] symbols = new Sprite[6]; //reference to the original symbol sprites from the asset library.
 
     [Header("Reel Settings")]
     [SerializeField, Min(96f)] private float symbolHeight = 100f; //Very important to put the correct height of the symbol, otherwise the symbols with clutter together.
@@ -38,10 +38,10 @@ public class SlotReel : MonoBehaviour
     private void InitializeReel()
     {
         //It is really important to have the correct number of images and symbols assigned, otherwise the reel will not work properly.
-        if (symbolImages == null || symbolImages.Length != 7 ||
-            symbols == null || symbols.Length != 5)
+        if (symbolImages == null || symbolImages.Length != 9 ||
+            symbols == null || symbols.Length != 6)
         {
-            Debug.LogError( $"{name}: Assign exactly 7 Images and 5 symbol Sprites.",this);
+            Debug.LogError( $"{name}: Assign exactly 9 Images and 6 symbol Sprites.",this);
             enabled = false;
             return;
         }
