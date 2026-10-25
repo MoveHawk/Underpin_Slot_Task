@@ -8,8 +8,12 @@ Underpin Slot Machine is a 2D slot machine task developed in Unity 6.3 LTS. It f
 - Three animated reels with sequential stopping using DOTween.
 - Six Slot symbols: Cherry, Seven, Bell, Bar, Diamond, and Clown.
 - Total 8 Possible Combinations:-
-  5 Main Combinations: Triple Cherry (2x Bet Multiplier), Triple Seven (3x Bet Multiplier), Triple Bell (4x Bet Multiplier), Triple Bar (5x Bet Multiplier), Triple Diamond (10x Bet Multiplier)
-  3 Special Combinations: Triple Clown (No Credit Reward
+  5 Main Combinations:
+
+  Triple Cherry (2x Bet Multiplier), Triple Seven (3x Bet Multiplier), Triple Bell (4x Bet Multiplier), Triple Bar (5x Bet Multiplier), Triple Diamond (10x Bet Multiplier)
+  
+  3 Special Combinations: Triple Clown (No Credit Reward), 1 Bar with Double Identical Symbols (2x Bet Multiplier), 2 Bars (1x Bet Multiplier)
+  
 - Adjustable bet amount, from 10 to 100 credits.
 - Weighted outcomes with different payout multipliers.
 - Lever visual feedback when spinning.
@@ -76,6 +80,6 @@ This means that, over a sufficiently large number of spins, the expected gross p
 The 5% difference represents the theoretical house edge:
 `House Edge = 100% - RTP (95%) = 5%`
 
-I configured the game for browser delivery and tested it through a local HTTP server rather than opening index.html directly. The compressed build initially failed because the server did not provide the correct Brotli response headers. I addressed this by enabling Decompression Fallback in the WebGL Publishing Settings so Unity can handle decompression when the server does not serve the expected headers. The build must still be tested in the target browser and hosting environment.
+I configured the game for browser delivery and tested it through a local HTTP server, The compressed build initially failed because the server did not provide the correct Brotli response headers. I addressed this by enabling Decompression Fallback in the WebGL Publishing Settings so Unity can handle decompression when the server does not serve the expected headers. The build must still be tested in the target browser and hosting environment.
 
 - **Code Structure:** SlotMachineManager.cs handles the balance, bet controls, weighted outcome selection, payout calculations, and coordination between reels. SlotReel.cs handles reel movement and stopping, while AudioManager.cs handles music and sound effects. This keeps each component focused on its own responsibility.
