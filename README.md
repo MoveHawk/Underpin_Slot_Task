@@ -67,7 +67,9 @@ The following table shows the current outcome weights, probabilities, payouts, a
 
 The calculation is:
 `RTP = Σ (Probability × Payout Multiplier) × 100`
+
 `RTP = (0.17 × 2) + (0.065 × 3) + (0.035 × 4) + (0.015 × 5) + (0.005 × 10) + (0.001 × 0) + (0.05 × 2) + (0.05 × 1) + (0.609 × 0)`
+
 `RTP = 0.95 × 100 = 95%`
 
 This means that, over a sufficiently large number of spins, the expected gross payout is 95 credits for every 100 credits wagered. This is a theoretical long-term average, not a guarantee for an individual session.
