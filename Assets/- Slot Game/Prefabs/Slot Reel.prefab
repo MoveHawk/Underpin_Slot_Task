@@ -121,8 +121,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 38184f9e0fd11ad4498391986fd3ef83, type: 3}
   - {fileID: 21300000, guid: 323cd61ac7439024683e4e947d7813cd, type: 3}
   symbolHeight: 170
-  spinSpeed: 1200
-  stopDuration: 0.2
+  spinSpeed: 1500
+  extraLoops: 1
 --- !u!1 &5734663191463830558
 GameObject:
   m_ObjectHideFlags: 0

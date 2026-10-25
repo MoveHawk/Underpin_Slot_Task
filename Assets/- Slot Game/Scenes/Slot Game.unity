@@ -2280,7 +2280,7 @@ MonoBehaviour:
   - {fileID: 102619711}
   - {fileID: 1022598922}
   - {fileID: 317802962}
-  spinDuration: 1.5
+  spinDuration: 0.5
   stopGap: 0.25
   startingBalance: 1000
   betAmount: 10

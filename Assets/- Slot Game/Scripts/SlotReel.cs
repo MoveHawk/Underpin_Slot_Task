@@ -5,45 +5,62 @@ using DG.Tweening;
 
 public class SlotReel : MonoBehaviour
 {
-    [Header("Slot Symbols")]
-    [SerializeField] private Image[] symbolImages = new Image[7];  //7 symbol images will be displayed on the reel (hidden by the RectMask2D)
+    [Header("Symbols")]
+    //the no. of images to be shown on the reel strip are 3, the extra images are hidden by the RectMask2D, they are used for seamless animation.
+    [SerializeField] private Image[] symbolImages = new Image[7];
     [SerializeField] private Sprite[] symbols = new Sprite[5]; //reference to the original symbol sprites from the asset library.
 
     [Header("Reel Settings")]
-    [SerializeField, Min(96f)] private float symbolHeight = 100f;
+    [SerializeField, Min(96f)] private float symbolHeight = 100f; //Very important to put the correct height of the symbol, otherwise the symbols with clutter together.
     [SerializeField] private float spinSpeed = 1200f;
-    [SerializeField] private float stopDuration = 0.2f;
+    [SerializeField] private float minStopDistance = 150f;
+    [SerializeField, Min(0.25f)] private float brakingDistanceInRows = 2f; //the distance in symbol rows over which the reel will decelerate to a stop.
+    [SerializeField] private float overshootInRows = 0.06f; //the distance of the overshooting animation for the target symbol.
+    [SerializeField, Min(0.01f)] private float overshootStopDuration = 0.09f; 
 
     private bool isSpinning;
     private float recycleDistance;
-    private float recycleThreshold;
+    private Tween stopTween;
 
     public bool IsSpinning => isSpinning;
-    public float StopDuration => stopDuration;
 
     private void Awake()
     {
-        if (symbolImages.Length < 5 || symbols.Length == 0)
+        InitializeReel();
+    }
+
+    private void Update()
+    {
+        if (isSpinning)
+            MoveDown(spinSpeed * Time.deltaTime);
+    }
+
+    private void InitializeReel()
+    {
+        //It is really important to have the correct number of images and symbols assigned, otherwise the reel will not work properly.
+        if (symbolImages == null || symbolImages.Length != 7 ||
+            symbols == null || symbols.Length != 5)
         {
-            Debug.LogError($"{name}: Assign at least 5 symbol Images and at least 1 symbol Sprite.",this);
+            Debug.LogError( $"{name}: Assign exactly 7 Images and 5 symbol Sprites.",this);
             enabled = false;
             return;
         }
 
+        //Here we calculate the distance at which the symbols will be recycled, this is based on the height of the symbol and the number of images in the reel.
         recycleDistance = symbolHeight * symbolImages.Length;
-        recycleThreshold = symbolHeight * (symbolImages.Length / 2f);
 
-        // Arrange nine symbols in a centered vertical column.
         for (int i = 0; i < symbolImages.Length; i++)
         {
-            if (symbolImages[i] == null)
+            Image image = symbolImages[i];
+
+            if (image == null)
             {
-                Debug.LogError($"{name}: Symbol Image {i} is missing.", this);
+                Debug.LogError($"{name}: Missing symbol Image {i}.",this);
                 enabled = false;
                 return;
             }
 
-            RectTransform rt = symbolImages[i].rectTransform;
+            RectTransform rt = image.rectTransform;
             rt.DOKill();
 
             rt.anchoredPosition = new Vector2(
@@ -51,7 +68,7 @@ public class SlotReel : MonoBehaviour
                 (4 - i) * symbolHeight
             );
 
-            SetRandomSymbol(symbolImages[i]);
+            image.sprite = symbols[i % symbols.Length];
         }
     }
 
@@ -60,106 +77,174 @@ public class SlotReel : MonoBehaviour
         if (!enabled)
             return;
 
-        // Cancel any unfinished stopping tweens.
-        foreach (Image image in symbolImages)
-        {
-            image.rectTransform.DOKill();
-        }
-
+        stopTween?.Kill();
+        stopTween = null;
         isSpinning = true;
     }
 
-    private void Update()
-    {
-        if (!isSpinning)
-            return;
 
-        float movement = spinSpeed * Time.deltaTime;
+    private void MoveDown(float distance)
+    {
+        float threshold = recycleDistance * 0.5f;
 
         foreach (Image image in symbolImages)
         {
             RectTransform rt = image.rectTransform;
-            Vector2 position = rt.anchoredPosition;
+            Vector2 pos = rt.anchoredPosition;
 
-            // Symbols travel downward.
-            position.y -= movement;
+            pos.y -= distance;
 
-            // Recycle symbols that leave the bottom.
-            while (position.y < -recycleThreshold)
-            {
-                position.y += recycleDistance;
-                SetRandomSymbol(image);
-            }
+            // Wrap in either direction without changing the sprite.
+            while (pos.y < -threshold)
+                pos.y += recycleDistance;
 
-            rt.anchoredPosition = position;
+            while (pos.y >= threshold)
+                pos.y -= recycleDistance;
+
+            rt.anchoredPosition = pos;
         }
     }
 
-    public void StopOnSymbol(int symbolIndex)
+    public Tween StopOnSymbol(int symbolIndex)
     {
-        if (!enabled || symbols.Length == 0)
-            return;
+        if (!enabled || !isSpinning)
+            return null;
 
         symbolIndex = Mathf.Clamp(symbolIndex, 0, symbols.Length - 1);
         isSpinning = false;
 
+        stopTween?.Kill();
+
+        // Here we find the closest target image that allows enough travel for a convincing/clicky stop.
+        //Why?: If this is not implemented, the reel may stop too soon or too late, resulting in a jarring/teleport animation.
+        float targetDistance = float.MaxValue;
+        float fallbackDistance = float.MaxValue;
+
         foreach (Image image in symbolImages)
         {
-            RectTransform rt = image.rectTransform;
+            if (image.sprite != symbols[symbolIndex])
+                continue;
 
-            // Find the nearest exact symbol row.
-            float targetY = Mathf.Round(
-                rt.anchoredPosition.y / symbolHeight
-            ) * symbolHeight;
+            float y = image.rectTransform.anchoredPosition.y;
+            float distance = Mathf.Repeat(y, recycleDistance);
 
-            // Smoothly settle onto the symbol grid.
-            rt.DOAnchorPosY(targetY, stopDuration)
-                .SetEase(Ease.OutCubic)
-                .OnComplete(() => UpdateSettledSymbol(image, symbolIndex));
+            if (distance < fallbackDistance)
+                fallbackDistance = distance;
+
+            if (distance >= minStopDistance &&
+                distance < targetDistance)
+            {
+                targetDistance = distance;
+            }
         }
-    }
 
-    private void UpdateSettledSymbol(Image image, int winningSymbolIndex)
-    {
-        if (image == null)
-            return;
+        if (targetDistance == float.MaxValue)
+            targetDistance = fallbackDistance;
 
-        RectTransform rt = image.rectTransform;
+        if (targetDistance == float.MaxValue)
+        {
+            Debug.LogError($"{name}: Target symbol not found.", this);
+            isSpinning = true;
+            return null;
+        }
 
-        // The center row is the payline.
-        int row = Mathf.RoundToInt(
-            rt.anchoredPosition.y / symbolHeight
+        float overshoot = symbolHeight * overshootInRows;
+
+        // The target passes just above the payline, then settles back. (Overshooting animation)
+        float totalDistance = targetDistance + overshoot;
+
+        // Keep the final braking phase short and predictable.
+        float brakingDistance = Mathf.Min(
+            totalDistance,
+            symbolHeight * brakingDistanceInRows
         );
 
-        if (row == 0)
-        {
-            image.sprite = symbols[winningSymbolIndex];
-        }
-        else
-        {
-            SetRandomSymbol(image);
-        }
-    }
+        float cruiseDistance = totalDistance - brakingDistance;
 
-    private void SetRandomSymbol(Image image)
-    {
-        if (image == null || symbols.Length == 0)
-            return;
+        Sequence sequence = DOTween.Sequence();
 
-        image.sprite = symbols[Random.Range(0, symbols.Length)];
+        // Stage 1: constant-speed scrolling.
+        if (cruiseDistance > 0.001f)
+        {
+            float moved = 0f;
+
+            sequence.Append(
+                DOVirtual.Float(
+                    0f,
+                    cruiseDistance,
+                    cruiseDistance / spinSpeed,
+                    value =>
+                    {
+                        MoveDown(value - moved);
+                        moved = value;
+                    }
+                ).SetEase(Ease.Linear)
+            );
+        }
+
+        // Stage 2: smooth deceleration, beginning at spinSpeed.
+        if (brakingDistance > 0.001f)
+        {
+            float moved = 0f;
+
+            float brakingTime = 3f * brakingDistance / spinSpeed;
+
+            sequence.Append(
+                DOVirtual.Float(
+                    0f,
+                    brakingDistance,
+                    brakingTime,
+                    value =>
+                    {
+                        MoveDown(value - moved);
+                        moved = value;
+                    }
+                ).SetEase(Ease.OutCubic)
+            );
+        }
+
+        // Stage 3: tiny reverse movement to settle on the exact row.
+        if (overshoot > 0.001f)
+        {
+            float returned = 0f;
+
+            sequence.Append(
+                DOVirtual.Float(
+                    0f,
+                    overshoot,
+                    overshootStopDuration,
+                    value =>
+                    {
+                        MoveDown(-(value - returned));
+                        returned = value;
+                    }
+                ).SetEase(Ease.OutSine)
+            );
+        }
+
+        sequence.OnComplete(() =>
+        {
+            // To avoid any floating-point inaccuracies caused by Unity's distance system, we snap the final position of each symbol to the exact rounded off position.
+            foreach (Image image in symbolImages)
+            {
+                RectTransform rt = image.rectTransform;
+                Vector2 pos = rt.anchoredPosition;
+                //Formula: finalPosition = round(currentPosition / symbolHeight) * symbolHeight
+                pos.y = Mathf.Round(pos.y / symbolHeight) * symbolHeight;
+                rt.anchoredPosition = pos;
+            }
+
+            stopTween = null;
+        });
+
+        stopTween = sequence;
+        return sequence;
     }
 
     private void OnDisable()
     {
         isSpinning = false;
-
-        if (symbolImages == null)
-            return;
-
-        foreach (Image image in symbolImages)
-        {
-            if (image != null)
-                image.rectTransform.DOKill();
-        }
+        stopTween?.Kill();
+        stopTween = null;
     }
 }
