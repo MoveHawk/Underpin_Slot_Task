@@ -63,7 +63,8 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
         SlotCheck();
     }
 
-    private bool SlotCheck()
+    // SlotCheck validates the configuration of the slot machine and initializes necessary values. It ensures that the reels, outcome weights, and payout multipliers are correctly set up.
+    private bool SlotCheck() 
     {
         balance = startingBalance;
 
