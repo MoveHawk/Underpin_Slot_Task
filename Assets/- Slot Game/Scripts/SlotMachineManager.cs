@@ -33,7 +33,8 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
         { 2, 3, 4, 5, 10, 0, 2, 1, 0 };
 
     [Header("UI")]
-    [SerializeField] private Button spinButton;
+    [SerializeField] private Button spinButton; //Normal spin button, can be clicked with mouse or tapped on mobile.
+    [SerializeField] private Button leverButton; //Animated Lever handle button, can be clicked with mouse or tapped on mobile.
     [SerializeField] private Button increaseBetButton;
     [SerializeField] private Button decreaseBetButton;
     [SerializeField] private TMP_Text betText;
@@ -122,8 +123,11 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
         totalWeight = CalculateTotalWeight();
         theoreticalRtp = CalculateTheoreticalRtp();
 
+        //Slot machine can be spinned by both the spin button and the lever button, if they are assigned in the Inspector.
         if (spinButton != null)
             spinButton.onClick.AddListener(Spin);
+        if (leverButton != null)
+            leverButton.onClick.AddListener(Spin);
 
         if (increaseBetButton != null)
             increaseBetButton.onClick.AddListener(IncreaseBet);
@@ -313,8 +317,7 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
             return;
         }
 
-        // Decide the outcome category and all three symbols first.
-        // The reels only animate these results; they never reroll them.
+        // Decide the outcome category and all three symbols first, The reels only animate these results; they never reroll them.
         int outcomeIndex = GetWeightedOutcomeIndex();
         int[] results = new int[reels.Length];
 
@@ -323,8 +326,13 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
         balance -= betAmount;
         isSpinning = true;
 
+        if (AudioManager.Instance != null) 
+            AudioManager.Instance.PlayLeverPull(); // Plays the lever pull sound effect when the spin starts.
+
         if (spinButton != null)
             spinButton.interactable = false;
+        if (leverButton != null)
+            leverButton.interactable = false;
 
         if (resultText != null)
             resultText.text = "Spinning...";
@@ -368,6 +376,15 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
         balance += payout;
         totalPaid += payout;
 
+        //Here, we play the appropriate sound effect based on the outcome of the spin.
+        if (AudioManager.Instance != null)
+        {
+            if (outcomeIndex == 4)
+                AudioManager.Instance.PlayJackpot();
+            else if (payout > 0)
+                AudioManager.Instance.PlayPayout();
+        }
+
         if (resultText != null)
             resultText.text = GetOutcomeMessage(outcomeIndex, payout);
 
@@ -375,6 +392,8 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
 
         if (spinButton != null)
             spinButton.interactable = true;
+        if (leverButton != null)
+            leverButton.interactable = true;
 
         UpdateUI();
         //Return To Player (RTP) calculation is logged to the console for observing/debugging purposes.
@@ -483,5 +502,7 @@ Order: Cherry triple, Seven triple, Bell triple, Bar triple, Diamond triple, Clo
 
         if (spinButton != null)
             spinButton.onClick.RemoveListener(Spin);
+        if (leverButton != null)
+            leverButton.onClick.RemoveListener(Spin);
     }
 }
