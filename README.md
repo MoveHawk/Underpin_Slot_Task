@@ -35,7 +35,7 @@ The WebGL build uses compressed assets and must be served over HTTP. Opening `in
 6. To stop the server, press `Ctrl+C` in the terminal.
 
 **Option 2: Please visit the Unity Play website attached below**
-Unity Play: [**Play Underpin Slot Machine**](https://play.unity.com/api/v1/games/game/62f3ea4e-204e-4bfc-a66a-352a03c39008/build/latest/frame)
+Unity Play: [**Play Underpin Slot Machine**](https://play.unity.com/en/games/62f3ea4e-204e-4bfc-a66a-352a03c39008/underpinslottask)
 
 ## Bonus Features
 - Animated lever feedback when a spin begins.
