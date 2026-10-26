@@ -21,6 +21,7 @@ Underpin Slot Machine is a 2D slot machine task developed in Unity 6.3 LTS. It f
 - Theoretical and observed Return to Player (RTP) calculations available in the game logic.
 
 ## Instructions to Run WebGL Build
+**Option 1:**
 The WebGL build uses compressed assets and must be served over HTTP. Opening `index.html` directly using a `file://` URL will not work reliably.
 1. Please install Python 3 if it is not already installed.
 2. Clone or download this repository and extract Build/WebGL Contents.
@@ -32,6 +33,9 @@ The WebGL build uses compressed assets and must be served over HTTP. Opening `in
    On some systems, use `python3` instead of `python`.
 5. Open the following URL in a browser: http://localhost:8000
 6. To stop the server, press `Ctrl+C` in the terminal.
+
+**Option 2: Please visit the Unity Play website attached below**
+Unity Play: [**Play Underpin Slot Machine**](https://play.unity.com/api/v1/games/game/62f3ea4e-204e-4bfc-a66a-352a03c39008/build/latest/frame)
 
 ## Bonus Features
 - Animated lever feedback when a spin begins.
