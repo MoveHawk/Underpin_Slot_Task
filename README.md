@@ -34,8 +34,8 @@ The WebGL build uses compressed assets and must be served over HTTP. Opening `in
 5. Open the following URL in a browser: http://localhost:8000
 6. To stop the server, press `Ctrl+C` in the terminal.
 
-**Option 2: Please visit the Unity Play website attached below**
-Unity Play: [**Play Underpin Slot Machine**](https://play.unity.com/en/games/62f3ea4e-204e-4bfc-a66a-352a03c39008/underpinslottask)
+**Option 2: Please visit the Unity Play website attached here:**
+[**Play Underpin Slot Machine**](https://play.unity.com/en/games/62f3ea4e-204e-4bfc-a66a-352a03c39008/underpinslottask)
 
 ## Bonus Features
 - Animated lever feedback when a spin begins.
@@ -83,6 +83,11 @@ The calculation is:
 This means that, over a sufficiently large number of spins, the expected gross payout is 95 credits for every 100 credits wagered. This is a theoretical long-term average, not a guarantee for an individual session.
 The 5% difference represents the theoretical house edge:
 `House Edge = 100% - RTP (95%) = 5%`
+
+While observing/testing the RTP data for 100 spins, we get ~95% RTP (as calculated via the Theoretical RTP)
+[![Slot RTP Proof 1](100-rtp-data1.png)] 
+[![Slot RTP Proof 1](100-rtp-data2.png)] 
+[![Slot RTP Proof 1](100-rtp-data3.png)] 
 
 I configured the game for browser delivery and tested it through a local HTTP server, The compressed build initially failed because the server did not provide the correct Brotli response headers. I addressed this by enabling Decompression Fallback in the WebGL Publishing Settings so Unity can handle decompression when the server does not serve the expected headers. The build must still be tested in the target browser and hosting environment.
 
